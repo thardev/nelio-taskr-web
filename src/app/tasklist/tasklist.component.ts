@@ -17,6 +17,7 @@ import { MatSnackBar } from '@angular/material';
 export class TasklistComponent implements OnInit {
   private tasks: Task[];
   private checkboxesArray: any[];
+  private deleteDisabled: boolean = true;
   @ViewChildren('bulkCheckbox') checkboxes: QueryList<any>;
 
   constructor(private breakpointObserver: BreakpointObserver, private taskService: TaskService, private http: HttpClient, private router: Router, private snackBar: MatSnackBar) { }
@@ -25,9 +26,29 @@ export class TasklistComponent implements OnInit {
     this.getTasks();
   }
 
+  ngAfterViewInit() {
+    this.checkboxesArray = this.checkboxes.toArray();
+    this.checkboxes.changes.subscribe(() => {
+      this.checkboxes.toArray().forEach(el => {
+        this.checkboxesArray.push(el);
+      })
+    });
+  }
+
   getTasks() {
     this.taskService.getTasks()
         .subscribe(task => this.tasks = task);
+  }
+
+  enableBulkDelete(): boolean {
+    this.deleteDisabled = true;
+    this.checkboxesArray.map((checkbox) => {
+      if (checkbox._checked) {
+        this.deleteDisabled = false;
+      }
+    });
+
+    return this.deleteDisabled;
   }
 
   bulkDelete(): void {
@@ -35,18 +56,12 @@ export class TasklistComponent implements OnInit {
     let tasksToDelete = [];
     let taskIndex;
 
-    this.checkboxesArray = this.checkboxes.toArray();
     this.checkboxesArray.map((checkbox) => {
       if (checkbox._checked) {
         idsToDelete.push(parseInt(checkbox.value));
         tasksToDelete.push(this.taskService.deleteTask(checkbox.value));
       }
     });
-
-    if (idsToDelete.length === 0) {
-      this.snackBar.open('No tasks selected to delete', 'Close');
-      return;
-    }
 
     idsToDelete.map((id) => {
       taskIndex = this.tasks.findIndex((task) => { return task.id === id });

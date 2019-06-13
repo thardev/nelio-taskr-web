@@ -1,7 +1,7 @@
 <div class="grid-container">
   <div class="grid-header-container">
     <h1 class="mat-h1">Tasks</h1>
-    <button mat-flat-button class="bulk-delete-button" color="warn" (click)="bulkDelete()">Delete selected</button>
+    <button mat-flat-button class="bulk-delete-button" color="warn" (click)="bulkDelete()" [disabled]="deleteDisabled">Delete selected</button>
   </div>
   <mat-grid-list cols="2" rowHeight="450px">
     <mat-grid-tile *ngFor="let task of tasks" [colspan]="1" [rowspan]="1">
@@ -9,7 +9,7 @@
         <mat-card-header>
           <mat-card-title>
             Task {{task.id}}
-            <mat-checkbox class="bulk-delete-checkbox" value="{{task.id}}" title="Select one or more task and use the delete selected button" color="warn" #bulkCheckbox></mat-checkbox>
+            <mat-checkbox class="bulk-delete-checkbox" value="{{task.id}}" title="Select one or more task and use the delete selected button" color="warn" (change)="enableBulkDelete()" #bulkCheckbox></mat-checkbox>
           </mat-card-title>
         </mat-card-header>
         <mat-card-content class="task-card-content">
